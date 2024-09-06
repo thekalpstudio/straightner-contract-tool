@@ -1,0 +1,17 @@
+{
+  "name": "straightner",
+  "version": "1.0.0",
+  "main": "test.js",
+  "author": {
+    "name": "ftnikhil.eth",
+    "email": "ftnikhil.eth@gamil.com"},
+  "license": "MIT",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "axios": "^0.19.0",
+    "get-installed-path": "~4.0.8"
+  }
+}
