@@ -1,0 +1,65 @@
+{
+  "timestamp": "2025-09-10T10:39:16.119Z",
+  "totalTests": 6,
+  "passed": 5,
+  "failed": 1,
+  "passRate": "83.3%",
+  "details": {
+    "passed": [
+      {
+        "name": "BasicERC20",
+        "contract": "BasicToken",
+        "bytecodeSize": 2951,
+        "attempt": 1
+      },
+      {
+        "name": "ComplexNFT",
+        "contract": "ComplexNFT",
+        "bytecodeSize": 7760,
+        "attempt": 1
+      },
+      {
+        "name": "Upgradeable",
+        "contract": "UpgradeableVault",
+        "bytecodeSize": 4233,
+        "attempt": 1
+      },
+      {
+        "name": "Governor",
+        "contract": "DAOGovernor",
+        "bytecodeSize": 19857,
+        "attempt": 1
+      },
+      {
+        "name": "CircularA",
+        "contract": "CircularA",
+        "bytecodeSize": 394,
+        "attempt": 1,
+        "config": {
+          "evmVersion": "cancun",
+          "optimize": true,
+          "runs": 200
+        }
+      }
+    ],
+    "failed": [
+      {
+        "name": "LocalImports",
+        "reason": "Compilation failed with all configurations"
+      }
+    ],
+    "totalBytecode": 35195
+  },
+  "improvements": {
+    "before": {
+      "passed": 1,
+      "total": 6,
+      "rate": "16.7%"
+    },
+    "after": {
+      "passed": 5,
+      "total": 6,
+      "rate": "83.3%"
+    }
+  }
+}
