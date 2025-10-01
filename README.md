@@ -145,8 +145,8 @@ straightner/
 
 ## Author
 
-**ftnikhil.eth**
-Email: ftnikhil.eth@gamil.com
+**0xprabal.eth**
+Email:0xprabal.eth@gmail.com
 
 ## License
 
