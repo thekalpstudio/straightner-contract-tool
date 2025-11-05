@@ -332,3 +332,46 @@ open API.md
 ---
 
 **Happy Compiling! 🚀**
+
+---
+
+## 🔧 Environment Variables
+
+The server supports environment variables for configuration. See `ENV_VARIABLES.md` for details.
+
+### Most Common Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `3000` | API server port |
+| `RATE_LIMIT_PER_MIN` | `60` | Max requests per minute |
+| `REDIS_URL` | `redis://localhost:6379` | Redis connection (for queue) |
+
+### Quick Examples
+
+```bash
+# Change port
+PORT=8080 node server/app.js
+
+# Increase rate limit
+RATE_LIMIT_PER_MIN=200 node server/app.js
+
+# Multiple variables
+PORT=8080 RATE_LIMIT_PER_MIN=100 node server/app.js
+```
+
+### Using .env File
+
+```bash
+# Copy example file
+cp .env.example .env
+
+# Edit with your values
+nano .env
+
+# Run server (it will load .env automatically)
+node server/app.js
+```
+
+**Note:** All variables have defaults, so you can run without configuration!
+
