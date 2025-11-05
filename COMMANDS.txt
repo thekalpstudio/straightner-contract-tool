@@ -1,0 +1,49 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                   STRAIGHTNER - QUICK COMMANDS                       ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+═══ INSTALL ═══
+npm install
+
+═══ CLI USAGE ═══
+node index.js flatten contracts/MyToken.sol
+node index.js compile contracts/MyToken.sol
+node index.js --help
+
+═══ START API SERVER ═══
+node server/app.js
+
+═══ TEST API (after starting server) ═══
+
+# Health Check
+curl http://localhost:3000/health
+
+# Unified Endpoint (Get Everything)
+curl -X POST http://localhost:3000/api/process \
+  -H "Content-Type: application/json" \
+  -d '{"contractPath": "contracts/MyToken.sol"}'
+
+# Flatten Only
+curl -X POST http://localhost:3000/api/flatten \
+  -H "Content-Type: application/json" \
+  -d '{"contractPath": "contracts/MyToken.sol"}'
+
+# Compile Only
+curl -X POST http://localhost:3000/api/compile-sync \
+  -H "Content-Type: application/json" \
+  -d '{"contractPath": "contracts/MyToken.sol"}'
+
+# Bytecode + ABI
+curl -X POST http://localhost:3000/api/bytecode \
+  -H "Content-Type: application/json" \
+  -d '{"contractPath": "contracts/MyToken.sol"}'
+
+═══ QUICK TESTS ═══
+./RUN_ME_FIRST.sh    # Interactive demo
+./test_api.sh        # Quick API test
+npm test             # Run test suite
+
+═══ STOP SERVER ═══
+Ctrl + C             # If running in foreground
+kill $(lsof -ti:3000) # Kill process on port 3000
+

@@ -26,18 +26,6 @@ npm install
 node index.js flatten contracts/MyToken.sol
 ```
 
-### Compile a Contract
-
-```bash
-node index.js compile contracts/MyToken.sol
-```
-
-### Get Bytecode
-
-```bash
-node index.js bytecode contracts/MyToken.sol MyToken
-```
-
 ### Help
 
 ```bash
@@ -49,25 +37,25 @@ node index.js --help
 ```javascript
 const straightner = require('./index');
 
-// Flatten a contract
+// Flatten a contract (with pragma)
 const flattened = await straightner.flatten('contracts/MyToken.sol');
 
-// Compile a contract
-const compiled = await straightner.compile('contracts/MyToken.sol');
+// Process file (without pragma)
+const processed = await straightner.processFile('contracts/MyToken.sol');
 
-// Get bytecode
-const bytecode = await straightner.getBytecode('contracts/MyToken.sol', 'MyToken');
-
-// Get all bytecodes
-const allBytecodes = await straightner.getAllBytecodes('contracts/MyToken.sol');
-
-// Fix contract issues
-const fixed = await straightner.fixContract(sourceCode);
+// Get pragma version
+const pragma = await straightner.getPragma('contracts/MyToken.sol');
 ```
 
 ## Server API
 
-Start the server:
+The server provides a queueing system for contract compilation using Redis and BullMQ.
+
+### Prerequisites
+
+- Redis server running on `localhost:6379` or set `REDIS_URL` environment variable
+
+### Start the server
 
 ```bash
 node server/app.js
@@ -75,36 +63,79 @@ node server/app.js
 
 ### API Endpoints
 
-#### Flatten Contract
+#### Synchronous Endpoints (Direct Processing)
+
+**Process Contract (All-in-One)** ⭐ NEW
 ```bash
-POST /flatten
+POST /api/process
 Content-Type: application/json
 
 {
   "contractPath": "contracts/MyToken.sol"
 }
 ```
+Returns flattened source, bytecode, and ABI in a single call.
 
-#### Compile Contract
+**Flatten Contract**
+```bash
+POST /api/flatten
+Content-Type: application/json
+
+{
+  "contractPath": "contracts/MyToken.sol"
+}
+```
+Returns flattened contract source code.
+
+**Compile Contract**
+```bash
+POST /api/compile-sync
+Content-Type: application/json
+
+{
+  "contractPath": "contracts/MyToken.sol"
+}
+```
+Returns bytecode, contract name, and ABI.
+
+**Get Bytecode**
+```bash
+POST /api/bytecode
+Content-Type: application/json
+
+{
+  "contractPath": "contracts/MyToken.sol"
+}
+```
+Returns deployment-ready bytecode and ABI.
+
+#### Async Endpoints (Queue-Based)
+
+**Health Check**
+```bash
+GET /health
+```
+Returns server status and job queue statistics.
+
+**Enqueue Compilation Job**
 ```bash
 POST /compile
 Content-Type: application/json
 
 {
-  "contractPath": "contracts/MyToken.sol"
-}
-```
-
-#### Get Bytecode
-```bash
-POST /bytecode
-Content-Type: application/json
-
-{
   "contractPath": "contracts/MyToken.sol",
-  "contractName": "MyToken"
+  "options": {}
 }
 ```
+Returns: `{"jobId": "1"}`
+
+**Check Job Status**
+```bash
+GET /jobs/:id
+```
+Returns job state, result, and failure reason if applicable.
+
+See [API.md](API.md) for detailed API documentation with examples.
 
 ## Testing
 

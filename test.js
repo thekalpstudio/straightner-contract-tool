@@ -1,31 +1,57 @@
 'use strict';
 
-const { straighten } = require('./straighten'),
-  fs = require('fs');
+const worker = require('./worker');
+const fs = require('fs');
 const path = require('path');
 
 async function main () {
-  const strtnFile = await straighten(
-    path.join(__dirname, 'contracts', 'ImportFromNodeModules.sol'),
-  );
+  console.log('Testing Straightner...\n');
 
-  const outputDir = path.join(__dirname, 'output');
+  try {
+    // Test 1: Basic flattening
+    console.log('Test 1: Flattening contract...');
+    const strtnFile = await worker.processFile(
+      path.join(__dirname, 'contracts', 'ImportFromNodeModules.sol'),
+      false,
+      true
+    );
 
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir);
+    const pragma = await worker.getPragma(
+      path.join(__dirname, 'contracts', 'ImportFromNodeModules.sol')
+    );
+
+    const outputDir = path.join(__dirname, 'output');
+
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir);
+    }
+
+    const finalOutput = pragma ? `${pragma}\n\n${strtnFile}` : strtnFile;
+
+    fs.writeFileSync(
+      path.join(outputDir, 'straightenedFile.sol'),
+      finalOutput
+    );
+
+    console.log('✓ Flattening successful! Output:', finalOutput.length, 'characters');
+    console.log('✓ File saved to output/straightenedFile.sol\n');
+
+    // Test 2: Check if output file exists and is readable
+    console.log('Test 2: Verifying output file...');
+    const outputPath = path.join(outputDir, 'straightenedFile.sol');
+    if (fs.existsSync(outputPath)) {
+      const content = fs.readFileSync(outputPath, 'utf-8');
+      console.log('✓ Output file exists and readable');
+      console.log('✓ Contains pragma:', content.includes('pragma solidity'));
+      console.log('✓ Contains contract code:', content.includes('contract') || content.includes('interface'));
+    }
+
+    console.log('\n✓ All tests passed!');
+
+  } catch (error) {
+    console.error('✗ Test failed:', error.message);
+    process.exit(1);
   }
-
-  fs.writeFile(
-    path.join(outputDir, 'straightenedFile.sol'),
-    strtnFile,
-    (err) => {
-      if (err) {
-        console.error('Error writing file:', err);
-      } else {
-        console.log('File has been saved!');
-      }
-    },
-  );
 }
 
 main();

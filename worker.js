@@ -4,11 +4,13 @@ const path = require('path'),
   { execSync } = require('child_process'),
   axios = require('axios'),
   fs = require('fs'),
-  { getInstalledPath } = require('get-installed-path');
+  { getInstalledPath } = require('get-installed-path'),
+  solc = require('solc');
 
 const regEx = {
   pragma: /(pragma solidity (.+?);)/g,
-  import: /import ['"](.+?)['"];/g,
+  import: /import\s+(?:{[^}]*}\s+from\s+)?['"](.+?)['"];/g,
+  spdx: /\/\/\s*SPDX-License-Identifier:.*$/gm,
   github: /^(https?:\/\/)?(www.)?github.com\/([^/]*\/[^/]*)\/(.*)/,
 };
 
@@ -58,12 +60,12 @@ const processFile = async (file, fromGithub, root = false) => {
       const url = 'https://api.github.com/repos/' + metadata[3] + '/contents/' + metadata[4];
       axios.defaults.headers.post['User-Agent'] = 'sol-straightener';
       contents = Buffer.from((await axios.get(url)).data.content, 'base64').toString();
-      contents = contents.replace(regEx.pragma, '').trim();
+      contents = contents.replace(regEx.pragma, '').replace(regEx.spdx, '').trim();
       imports = await processImports(file, contents, path.dirname(metadata[0]));
     }
     else {
       contents = fs.readFileSync(file, { encoding: 'utf-8' });
-      contents = contents.replace(regEx.pragma, '').trim();
+      contents = contents.replace(regEx.pragma, '').replace(regEx.spdx, '').trim();
       imports = await processImports(file, contents);
     }
     for (let i = 0; i < imports.length; i++) {
@@ -117,5 +119,87 @@ const getPragma = async (path) => {
   return group && group[1];
 };
 
+const compile = async (contractPath) => {
+  try {
+    // Step 1: Flatten the contract
+    const pragma = await getPragma(contractPath);
+    const flattened = await processFile(contractPath, false, true);
+
+    // Add a single SPDX identifier at the top
+    let source = '// SPDX-License-Identifier: MIT\n';
+    source += pragma ? `${pragma}\n\n${flattened}` : flattened;
+
+    // Step 2: Prepare solc input
+    const input = {
+      language: 'Solidity',
+      sources: {
+        'contract.sol': {
+          content: source
+        }
+      },
+      settings: {
+        optimizer: {
+          enabled: true,
+          runs: 200
+        },
+        outputSelection: {
+          '*': {
+            '*': ['evm.bytecode.object', 'abi']
+          }
+        }
+      }
+    };
+
+    // Step 3: Compile with solc
+    const output = JSON.parse(solc.compile(JSON.stringify(input)));
+
+    // Check for errors
+    if (output.errors) {
+      const errors = output.errors.filter(error => error.severity === 'error');
+      if (errors.length > 0) {
+        throw new Error(errors.map(e => e.formattedMessage).join('\n'));
+      }
+    }
+
+    // Step 4: Extract bytecode from all compiled contracts
+    const contracts = output.contracts['contract.sol'];
+    if (!contracts || Object.keys(contracts).length === 0) {
+      throw new Error('No contracts found in compilation output');
+    }
+
+    // Find the main deployable contract (not abstract, not interface, not library)
+    // Look for the contract with the longest bytecode (usually the main contract)
+    const contractNames = Object.keys(contracts);
+    let mainContract = null;
+    let maxBytecodeLength = 0;
+
+    for (const name of contractNames) {
+      const bytecode = contracts[name].evm.bytecode.object;
+      if (bytecode && bytecode.length > maxBytecodeLength) {
+        maxBytecodeLength = bytecode.length;
+        mainContract = name;
+      }
+    }
+
+    if (!mainContract) {
+      throw new Error('No deployable contract found in compilation output');
+    }
+
+    const bytecode = contracts[mainContract].evm.bytecode.object;
+    const abi = contracts[mainContract].abi;
+
+    return {
+      contractName: mainContract,
+      bytecode: '0x' + bytecode,
+      abi: abi,
+      source: source,
+      allContracts: contractNames
+    };
+  } catch (error) {
+    throw new Error(`Compilation failed: ${error.message}`);
+  }
+};
+
 module.exports.processFile = processFile;
 module.exports.getPragma = getPragma;
+module.exports.compile = compile;
