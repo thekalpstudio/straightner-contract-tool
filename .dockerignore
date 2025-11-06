@@ -1,0 +1,37 @@
+# Node modules
+node_modules
+npm-debug.log
+
+# Output and temp files
+output/
+temp/
+*.log
+
+# Git
+.git
+.gitignore
+
+# Documentation (not needed in container)
+*.md
+!README.md
+
+# Test files
+test*.js
+*.test.js
+*.spec.js
+
+# IDE
+.vscode/
+.idea/
+
+# Environment files (use docker env instead)
+.env
+.env.*
+
+# Mac files
+.DS_Store
+
+# Scripts (not needed in container)
+run_demo.sh
+test_api.sh
+RUN_ME_FIRST.sh

@@ -14,9 +14,22 @@ A powerful Solidity contract flattener and compiler that handles complex import 
 
 ## Installation
 
+### Option 1: NPM (Local)
 ```bash
 npm install
 ```
+
+### Option 2: Docker (Recommended for Production)
+```bash
+# Using Docker Compose (includes Redis)
+docker-compose up -d
+
+# Or using Docker only
+docker build -t straightner .
+docker run -d -p 3000:3000 straightner
+```
+
+See [DOCKER.md](DOCKER.md) for complete Docker documentation.
 
 ## CLI Usage
 

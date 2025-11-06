@@ -47,3 +47,21 @@ npm test             # Run test suite
 Ctrl + C             # If running in foreground
 kill $(lsof -ti:3000) # Kill process on port 3000
 
+
+═══ DOCKER DEPLOYMENT ═══
+
+# Using Docker Compose (with Redis)
+docker-compose up -d             # Start all services
+docker-compose ps                # Check status
+docker-compose logs -f api       # View logs
+docker-compose down              # Stop all services
+
+# Using Docker Only
+docker build -t straightner .    # Build image
+docker run -d -p 3000:3000 straightner  # Run container
+docker logs -f [container-id]    # View logs
+docker stop [container-id]       # Stop container
+
+# Test Docker Setup
+./docker-test.sh
+
