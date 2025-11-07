@@ -33,13 +33,13 @@ spec:
               httpGet:
                 path: /health
                 port: 3000
-              initialDelaySeconds: 150
+              initialDelaySeconds: 120
               timeoutSeconds: 30
           livenessProbe:
               httpGet:
                 path: /health
                 port: 3000
-              initialDelaySeconds: 150
+              initialDelaySeconds: 120
               periodSeconds: 5
               timeoutSeconds: 30
               failureThreshold: 5
