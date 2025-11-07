@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # Redis service (for queue-based endpoints)
+  redis:
+    image: redis:7-alpine
+    container_name: straightner-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Straightner API server
+  api:
+    build: .
+    container_name: straightner-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - REDIS_URL=redis://redis:6379
+      - RATE_LIMIT_PER_MIN=60
+      - WORKER_CONCURRENCY=2
+    volumes:
+      # Mount contracts directory for easy access
+      - ./contracts:/app/contracts:ro
+      # Mount output directory
+      - ./output:/app/output
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  # Worker service (for processing queue jobs)
+  worker:
+    build: .
+    container_name: straightner-worker
+    restart: unless-stopped
+    command: node server/worker.js
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - WORKER_CONCURRENCY=2
+    volumes:
+      - ./contracts:/app/contracts:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  redis-data:
+    driver: local
