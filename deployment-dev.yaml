@@ -1,0 +1,416 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: ks-dev
+  name: ks-contract-tool-backend-dev-deployment
+  labels:
+    app: ks-contract-tool-backend-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ks-contract-tool-backend-dev
+  template:
+    metadata:
+      labels:
+        app: ks-contract-tool-backend-dev
+    spec:
+      hostname: ks-contract-tool-backend-dev
+      nodeSelector:
+        noderole: ks-nonprod-node-x 
+      containers:
+        - name: ks-contract-tool-backend-dev
+          image: 025066284787.dkr.ecr.ap-south-1.amazonaws.com/ks-contract-tool-backend-dev:<VERSION>
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: '600Mi'
+              cpu: '150m'
+            limits:
+              memory: '600Mi'
+              cpu: '150m'
+          readinessProbe:
+              httpGet:
+                path: /health
+                port: 3000
+              initialDelaySeconds: 150
+              timeoutSeconds: 30
+          livenessProbe:
+              httpGet:
+                path: /health
+                port: 3000
+              initialDelaySeconds: 150
+              periodSeconds: 5
+              timeoutSeconds: 30
+              failureThreshold: 5
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: DB_HOST
+                  name: dev-ks-contract-tool-backend
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: DB_PORT
+                  name: dev-ks-contract-tool-backend
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: DB_USERNAME
+                  name: dev-ks-contract-tool-backend
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: DB_PASSWORD
+                  name: dev-ks-contract-tool-backend
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: DB_NAME
+                  name: dev-ks-contract-tool-backend
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: REDIS_PORT
+                  name: dev-ks-contract-tool-backend
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: REDIS_PASSWORD
+                  name: dev-ks-contract-tool-backend
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: REDIS_HOST
+                  name: dev-ks-contract-tool-backend
+            - name: PORT
+              valueFrom:
+                secretKeyRef:
+                  key: PORT
+                  name: dev-ks-contract-tool-backend
+            - name: INFURA_PROJECT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: INFURA_PROJECT_ID
+                  name: dev-ks-contract-tool-backend
+            - name: ENCRYPTION_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: ENCRYPTION_PASSWORD
+                  name: dev-ks-contract-tool-backend
+            - name: VAULT_URL
+              valueFrom:
+                secretKeyRef:
+                  key: VAULT_URL
+                  name: dev-ks-contract-tool-backend
+            - name: VAULT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: VAULT_SECRET
+                  name: dev-ks-contract-tool-backend
+            - name: RPC_PROVIDER_URL
+              valueFrom:
+                secretKeyRef:
+                  key: RPC_PROVIDER_URL
+                  name: dev-ks-contract-tool-backend
+            - name: HOLESKY_ETH
+              valueFrom:
+                secretKeyRef:
+                  key: HOLESKY_ETH
+                  name: dev-ks-contract-tool-backend
+            - name: SEPOLIA_ETH
+              valueFrom:
+                secretKeyRef:
+                  key: SEPOLIA_ETH
+                  name: dev-ks-contract-tool-backend
+            - name: MAINNET_ETH
+              valueFrom:
+                secretKeyRef:
+                  key: MAINNET_ETH
+                  name: dev-ks-contract-tool-backend
+            - name: EMAIL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: EMAIL_API_KEY
+                  name: dev-ks-contract-tool-backend
+            - name: EMAIL_URL
+              valueFrom:
+                secretKeyRef:
+                  key: EMAIL_URL
+                  name: dev-ks-contract-tool-backend
+            - name: SMS_URL
+              valueFrom:
+                secretKeyRef:
+                  key: SMS_URL
+                  name: dev-ks-contract-tool-backend
+            - name: SMS_AUTH_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: SMS_AUTH_KEY
+                  name: dev-ks-contract-tool-backend
+            - name: SMS_SERVICE_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: SMS_SERVICE_NAME
+                  name: dev-ks-contract-tool-backend
+            - name: AUTH_ENGINE_URL
+              valueFrom:
+                secretKeyRef:
+                  key: AUTH_ENGINE_URL
+                  name: dev-ks-contract-tool-backend
+            - name: AUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: AUTH_CLIENT_SECRET
+                  name: dev-ks-contract-tool-backend
+            - name: NOTIFICATION_ENGINE_API
+              valueFrom:
+                secretKeyRef:
+                  key: NOTIFICATION_ENGINE_API
+                  name: dev-ks-contract-tool-backend
+            - name: NOTIFICATION_ENGINE_APIKEY
+              valueFrom:
+                secretKeyRef:
+                  key: NOTIFICATION_ENGINE_APIKEY
+                  name: dev-ks-contract-tool-backend
+            - name: KALP_FAUCET
+              valueFrom:
+                secretKeyRef:
+                  key: KALP_FAUCET
+                  name: dev-ks-contract-tool-backend
+            - name: KALP_GATEWAY_URL
+              valueFrom:
+                secretKeyRef:
+                  key: KALP_GATEWAY_URL
+                  name: dev-ks-contract-tool-backend
+            - name: KALP_NETWORK
+              valueFrom:
+                secretKeyRef:
+                  key: KALP_NETWORK
+                  name: dev-ks-contract-tool-backend
+            - name: POLYGON
+              valueFrom:
+                secretKeyRef:
+                  key: POLYGON
+                  name: dev-ks-contract-tool-backend
+            - name: AMOY
+              valueFrom:
+                secretKeyRef:
+                  key: AMOY
+                  name: dev-ks-contract-tool-backend
+            - name: EMAIL_FROM
+              valueFrom:
+                secretKeyRef:
+                  key: EMAIL_FROM
+                  name: dev-ks-contract-tool-backend
+            - name: NFT_CREATOR_SERVICE_CHARGE
+              valueFrom:
+                secretKeyRef:
+                  key: NFT_CREATOR_SERVICE_CHARGE
+                  name: dev-ks-contract-tool-backend
+            - name: ROOT_API_URL
+              valueFrom:
+                secretKeyRef:
+                  key: ROOT_API_URL
+                  name: dev-ks-contract-tool-backend
+            - name: ROOT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: ROOT_SECRET
+                  name: dev-ks-contract-tool-backend
+            - name: API_GATEWAY_URL
+              valueFrom:
+                secretKeyRef:
+                  key: API_GATEWAY_URL
+                  name: dev-ks-contract-tool-backend
+            - name: API_GATEWAY_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: API_GATEWAY_KEY
+                  name: dev-ks-contract-tool-backend
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  key: RABBITMQ_USER
+                  name: dev-ks-contract-tool-backend
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: RABBITMQ_PASSWORD
+                  name: dev-ks-contract-tool-backend
+            - name: RABBITMQ_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: RABBITMQ_HOST
+                  name: dev-ks-contract-tool-backend
+            - name: RABBITMQ_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: RABBITMQ_PORT
+                  name: dev-ks-contract-tool-backend
+            - name: QUEUE_SMART_CONTRACT
+              valueFrom:
+                secretKeyRef:
+                  key: QUEUE_SMART_CONTRACT
+                  name: dev-ks-contract-tool-backend
+            - name: ENVIRONMENT
+              valueFrom:
+                secretKeyRef:
+                  key: ENVIRONMENT
+                  name: dev-ks-contract-tool-backend
+            - name: POLYGON_ADMIN_WALLET_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: POLYGON_ADMIN_WALLET_PRIVATE_KEY
+                  name: dev-ks-contract-tool-backend
+            - name: PORTAL_HOST_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: PORTAL_HOST_NAME
+                  name: dev-ks-contract-tool-backend
+            - name: CONSOLE_HOST_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: CONSOLE_HOST_NAME
+                  name: dev-ks-contract-tool-backend
+            - name: KALP_FAUCET_TESTNET
+              valueFrom:
+                secretKeyRef:
+                  key: KALP_FAUCET_TESTNET
+                  name: dev-ks-contract-tool-backend
+            - name: KALP_FAUCET_STAGENET
+              valueFrom:
+                secretKeyRef:
+                  key: KALP_FAUCET_STAGENET
+                  name: dev-ks-contract-tool-backend
+            - name: KALP_FAUCET_NEWTESTNET
+              valueFrom:
+                secretKeyRef:
+                  key: KALP_FAUCET_NEWTESTNET
+                  name: dev-ks-contract-tool-backend
+            - name: KALP_FAUCET_MAINNET
+              valueFrom:
+                secretKeyRef:
+                  key: KALP_FAUCET_MAINNET
+                  name: dev-ks-contract-tool-backend 
+            - name: HASH_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: HASH_SECRET_KEY
+                  name: dev-ks-contract-tool-backend 
+            - name: TRON_NETWORK
+              valueFrom:
+                secretKeyRef:
+                  key: TRON_NETWORK
+                  name: dev-ks-contract-tool-backend 
+            - name: TRON_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: TRON_PRIVATE_KEY
+                  name: dev-ks-contract-tool-backend 
+            - name: KALP_DEFAULT_WALLET_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: KALP_DEFAULT_WALLET_PRIVATE_KEY
+                  name: dev-ks-contract-tool-backend 
+            - name: KALP_DEFAULT_WALLET_CERTIFICATE
+              valueFrom:
+                secretKeyRef:
+                  key: KALP_DEFAULT_WALLET_CERTIFICATE
+                  name: dev-ks-contract-tool-backend 
+            - name: KALP_DEFAULT_WALLET_CHANNEL_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: KALP_DEFAULT_WALLET_CHANNEL_NAME
+                  name: dev-ks-contract-tool-backend 
+            - name: KALP_DEFAULT_WALLET_CHANNEL_CODE
+              valueFrom:
+                secretKeyRef:
+                  key: KALP_DEFAULT_WALLET_CHANNEL_CODE
+                  name: dev-ks-contract-tool-backend 
+            - name: BITGO_API_URL
+              valueFrom:
+                secretKeyRef:
+                  key: BITGO_API_URL
+                  name: dev-ks-contract-tool-backend 
+            - name: BITGO_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: BITGO_ACCESS_TOKEN
+                  name: dev-ks-contract-tool-backend 
+            - name: BITGO_ENTERPRISE_ID
+              valueFrom:
+                secretKeyRef:
+                  key: BITGO_ENTERPRISE_ID
+                  name: dev-ks-contract-tool-backend 
+            - name: BITGO_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: BITGO_WEBHOOK_SECRET
+                  name: dev-ks-contract-tool-backend 
+            - name: THIRDWEB_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: THIRDWEB_SECRET_KEY
+                  name: dev-ks-contract-tool-backend 
+            - name: THIRDWEB_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: THIRDWEB_CLIENT_ID
+                  name: dev-ks-contract-tool-backend 
+            - name: RELAYER_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: RELAYER_PRIVATE_KEY
+                  name: dev-ks-contract-tool-backend 
+            - name: KALP_RELAYER_ADDRESS_SEPOLIA
+              valueFrom:
+                secretKeyRef:
+                  key: KALP_RELAYER_ADDRESS_SEPOLIA
+                  name: dev-ks-contract-tool-backend 
+            - name: KALP_RELAYER_ADDRESS
+              valueFrom:
+                secretKeyRef:
+                  key: KALP_RELAYER_ADDRESS
+                  name: dev-ks-contract-tool-backend 
+            - name: SEPOLIA_RPC_URL
+              valueFrom:
+                secretKeyRef:
+                  key: SEPOLIA_RPC_URL
+                  name: dev-ks-contract-tool-backend 
+            - name: KALP_RELAYER_ADDRESS_POLYGON_AMOY
+              valueFrom:
+                secretKeyRef:
+                  key: KALP_RELAYER_ADDRESS_POLYGON_AMOY
+                  name: dev-ks-contract-tool-backend 
+            - name: POLYGON_AMOY_RPC_URL
+              valueFrom:
+                secretKeyRef:
+                  key: POLYGON_AMOY_RPC_URL
+                  name: dev-ks-contract-tool-backend 
+            - name: SMS_PLATFORM_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: SMS_PLATFORM_KEY
+                  name: dev-ks-contract-tool-backend 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: ks-dev
+  name: ks-contract-tool-backend-dev-svc
+  labels:
+    svc: ks-contract-tool-backend-dev
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
+  selector:
+    app: ks-contract-tool-backend-dev
