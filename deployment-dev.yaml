@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: ks-dev
+  name: ks-contract-tool-backend-dev-deployment
+  labels:
+    app: ks-contract-tool-backend-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ks-contract-tool-backend-dev
+  template:
+    metadata:
+      labels:
+        app: ks-contract-tool-backend-dev
+    spec:
+      hostname: ks-contract-tool-backend-dev
+      nodeSelector:
+        noderole: ks-nonprod-node-x 
+      containers:
+        - name: ks-contract-tool-backend-dev
+          image: 025066284787.dkr.ecr.ap-south-1.amazonaws.com/ks-contract-tool-backend-dev:<VERSION>
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: '600Mi'
+              cpu: '150m'
+            limits:
+              memory: '600Mi'
+              cpu: '150m'
+          readinessProbe:
+              httpGet:
+                path: /health
+                port: 3000
+              initialDelaySeconds: 120
+              timeoutSeconds: 30
+          livenessProbe:
+              httpGet:
+                path: /health
+                port: 3000
+              initialDelaySeconds: 120
+              periodSeconds: 5
+              timeoutSeconds: 30
+              failureThreshold: 5
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: PORT
+              valueFrom:
+                secretKeyRef:
+                  key: PORT
+                  name: dev-ks-contract-tool-backend
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  key: REDIS_URL
+                  name: dev-ks-contract-tool-backend
+            - name: QUEUE_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: QUEUE_NAME
+                  name: dev-ks-contract-tool-backend
+            - name: REMOVE_ON_COMPLETE
+              valueFrom:
+                secretKeyRef:
+                  key: REMOVE_ON_COMPLETE
+                  name: dev-ks-contract-tool-backend
+            - name: REMOVE_ON_FAIL
+              valueFrom:
+                secretKeyRef:
+                  key: REMOVE_ON_FAIL
+                  name: dev-ks-contract-tool-backend
+            - name: JOB_TTL_MS
+              valueFrom:
+                secretKeyRef:
+                  key: JOB_TTL_MS
+                  name: dev-ks-contract-tool-backend
+            - name: WORKER_CONCURRENCY
+              valueFrom:
+                secretKeyRef:
+                  key: WORKER_CONCURRENCY
+                  name: dev-ks-contract-tool-backend
+            - name: RATE_LIMIT_PER_MIN
+              valueFrom:
+                secretKeyRef:
+                  key: RATE_LIMIT_PER_MIN
+                  name: dev-ks-contract-tool-backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: ks-dev
+  name: ks-contract-tool-backend-dev-svc
+  labels:
+    svc: ks-contract-tool-backend-dev
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
+  selector:
+    app: ks-contract-tool-backend-dev
