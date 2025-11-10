@@ -5,7 +5,7 @@ const { connection } = require("./queue");
 const config = require("./config");
 
 // Reuse existing compile capability
-const { compileUltimate } = require("../index");
+const { compile } = require("../index");
 const { compileInSandbox } = require("./hardhat-sandbox");
 
 const worker = new Worker(
@@ -20,7 +20,8 @@ const worker = new Worker(
     let result = null;
     if (contractPath) {
       try {
-        result = await compileUltimate(contractPath, Object.assign({ silent: true }, options));
+        const compiled = await compile(contractPath);
+        result = { success: true, method: 'compile', contracts: { [compiled.contractName]: compiled } };
       } catch (e) {
         result = { success: false, error: e?.message || String(e) };
       }
