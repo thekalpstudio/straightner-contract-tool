@@ -7,6 +7,7 @@ A powerful Solidity contract flattener and compiler that handles complex import 
 - **Smart Flattening**: Automatically flatten Solidity contracts with all dependencies
 - **Universal Compiler**: Compile contracts with automatic import resolution
 - **Bytecode Extraction**: Get deployment-ready bytecode for your contracts
+- **File Upload Support**: Upload `.sol` files or `.zip` archives via API ⭐ NEW
 - **Contract Fixing**: Automatically fix common Solidity compilation issues
 - **Server API**: RESTful API for contract compilation and flattening
 - **Node Modules Support**: Seamlessly handle OpenZeppelin and other npm dependencies
@@ -75,6 +76,53 @@ node server/app.js
 ```
 
 ### API Endpoints
+
+#### File Upload Endpoints ⭐ NEW
+
+**Upload Contract File**
+```bash
+POST /api/upload
+Content-Type: multipart/form-data
+
+file: MyToken.sol (or contracts.zip)
+```
+Upload a `.sol` file or `.zip` archive. Returns uploaded file details including generated filename.
+
+**List Uploaded Files**
+```bash
+GET /api/uploads
+```
+Get list of all uploaded contract files.
+
+**Compile Uploaded File**
+```bash
+POST /api/upload/compile
+Content-Type: application/json
+
+{
+  "filename": "1699610000000-123456789-MyToken.sol"
+}
+```
+Compile an uploaded contract file.
+
+**Flatten Uploaded File**
+```bash
+POST /api/upload/flatten
+Content-Type: application/json
+
+{
+  "filename": "1699610000000-123456789-MyToken.sol"
+}
+```
+Flatten an uploaded contract file.
+
+**Delete Uploaded File**
+```bash
+DELETE /api/uploads/:filename
+```
+Delete an uploaded file.
+
+See [UPLOAD_API.md](UPLOAD_API.md) for detailed upload API documentation with examples.
 
 #### Synchronous Endpoints (Direct Processing)
 
@@ -186,6 +234,13 @@ straightner/
 - `@openzeppelin/contracts`: OpenZeppelin contract library
 - `axios`: HTTP client for API requests
 - `get-installed-path`: Resolve node_modules paths
+- `express`: Web framework for API server
+- `multer`: File upload middleware
+- `adm-zip`: ZIP file handling
+- `bullmq`: Job queue system
+- `ioredis`: Redis client
+- `solc`: Solidity compiler
+- `hardhat`: Development environment
 
 ## Author
 

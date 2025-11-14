@@ -13,8 +13,8 @@ RUN npm ci --only=production
 # Copy application files
 COPY . .
 
-# Create output directory
-RUN mkdir -p output temp
+# Create output and upload directories
+RUN mkdir -p output temp uploads/contracts
 
 # Expose API port
 EXPOSE 3000

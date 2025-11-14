@@ -1,1 +1,7 @@
 node_modules
+uploads/
+temp/
+output/
+*.log
+.DS_Store
+test-contract.sol
