@@ -459,6 +459,134 @@ app.post("/api/bytecode", async (req, res) => {
   }
 });
 
+// =====================================================
+// Global Deployment Endpoint - Upload, Compile & Get Deployment Details
+// =====================================================
+
+// Global endpoint - Upload file (.sol or .zip), compile, and return all deployment details
+// POST /api/deploy
+// Form-data: file (must be .sol or .zip) OR Body: { contractPath: string }
+app.post("/api/deploy", upload.single("file"), async (req, res) => {
+  let contractPath = null;
+  let tempFiles = [];
+  let uploadedFile = null;
+
+  try {
+    // Handle file upload
+    if (req.file) {
+      uploadedFile = req.file;
+      const ext = path.extname(uploadedFile.originalname).toLowerCase();
+
+      if (ext === ".sol") {
+        // Handle single .sol file
+        const contractFilename = path.basename(uploadedFile.filename);
+        const contractPathNew = path.join(CONTRACTS_DIR, contractFilename);
+        fs.renameSync(uploadedFile.path, contractPathNew);
+        contractPath = contractPathNew;
+        tempFiles.push(contractPathNew);
+      } else if (ext === ".zip") {
+        // Handle .zip file - extract all .sol files
+        const zip = new AdmZip(uploadedFile.path);
+        const zipEntries = zip.getEntries();
+
+        let solFiles = [];
+        const uniquePrefix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+
+        zipEntries.forEach((entry) => {
+          if (!entry.isDirectory && path.extname(entry.entryName).toLowerCase() === ".sol") {
+            const filename = `${uniquePrefix}-${path.basename(entry.entryName)}`;
+            const contractPathNew = path.join(CONTRACTS_DIR, filename);
+            fs.writeFileSync(contractPathNew, entry.getData());
+            solFiles.push({
+              filename: filename,
+              originalName: entry.entryName,
+              path: contractPathNew
+            });
+            tempFiles.push(contractPathNew);
+          }
+        });
+
+        // Clean up the uploaded zip file
+        fs.unlinkSync(uploadedFile.path);
+
+        if (solFiles.length === 0) {
+          return res.status(400).json({
+            success: false,
+            error: "No .sol files found in the zip archive"
+          });
+        }
+
+        // Use the first .sol file found (or you could process all)
+        contractPath = solFiles[0].path;
+      }
+    } else {
+      // Fall back to contractPath from body
+      const { contractPath: bodyPath } = req.body || {};
+      if (!bodyPath || typeof bodyPath !== "string") {
+        return res.status(400).json({
+          success: false,
+          error: "Missing required field: file upload (.sol or .zip) or contractPath (string)"
+        });
+      }
+      contractPath = bodyPath;
+    }
+
+    // Validate contract path exists
+    if (!fs.existsSync(contractPath)) {
+      return res.status(404).json({
+        success: false,
+        error: "Contract file not found"
+      });
+    }
+
+    // Step 1: Flatten the contract
+    const flattened = await straightner.flatten(contractPath);
+
+    // Step 2: Compile to get bytecode and ABI
+    const compiled = await straightner.compile(contractPath);
+
+    // Prepare deployment-ready response
+    const response = {
+      success: true,
+      contract: {
+        name: compiled.contractName,
+        originalPath: req.file ? req.file.originalname : contractPath,
+        path: contractPath
+      },
+      deployment: {
+        bytecode: compiled.bytecode,
+        bytecodeLength: (compiled.bytecode.length - 2) / 2,
+        abi: compiled.abi,
+        flattenedSource: flattened
+      },
+      metadata: {
+        compiledAt: new Date().toISOString(),
+        allContracts: compiled.allContracts || {}
+      }
+    };
+
+    res.json(response);
+  } catch (e) {
+    res.status(500).json({
+      success: false,
+      error: String(e.message || e)
+    });
+  } finally {
+    // Clean up temporary files (only if uploaded, not if using existing contractPath)
+    if (req.file && tempFiles.length > 0) {
+      tempFiles.forEach((filePath) => {
+        try {
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+        } catch (cleanupError) {
+          console.error(`Error cleaning up file ${filePath}:`, cleanupError);
+        }
+      });
+    }
+  }
+});
+
 // Unified endpoint - Returns flattened source, bytecode, and ABI in one call
 // POST /api/process
 // Body: { contractPath: string }

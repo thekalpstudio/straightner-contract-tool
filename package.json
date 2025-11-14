@@ -7,7 +7,12 @@
     "email": "ftnikhil.eth@gamil.com"},
   "license": "MIT",
   "scripts": {
-    "test": "node test.js"
+    "test": "node test.js",
+    "dev": "nodemon server/app.js",
+    "start": "node server/app.js"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.2",

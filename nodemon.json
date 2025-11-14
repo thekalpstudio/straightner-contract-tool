@@ -1,0 +1,20 @@
+{
+  "watch": [
+    "server",
+    "contracts",
+    "index.js",
+    "contract-fixer.js"
+  ],
+  "ext": "js,json,sol",
+  "ignore": [
+    "node_modules",
+    "output",
+    "uploads",
+    "*.log"
+  ],
+  "exec": "node server/app.js",
+  "env": {
+    "NODE_ENV": "development"
+  }
+}
+

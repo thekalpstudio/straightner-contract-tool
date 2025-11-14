@@ -3,7 +3,7 @@
 const url = process.env.REDIS_URL || "redis://localhost:6379";
 
 module.exports = {
-  port: Number(process.env.PORT || 3000),
+  port: Number(process.env.PORT || 4000),
   redis: { url },
   queueName: process.env.QUEUE_NAME || "compile",
   removeOnComplete: Number(process.env.REMOVE_ON_COMPLETE || 1000),
