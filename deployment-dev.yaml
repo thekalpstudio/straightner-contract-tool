@@ -5,8 +5,8 @@ metadata:
   name: ks-contract-tool-backend-dev-deployment
   labels:
     app: ks-contract-tool-backend-dev
-  annotations:
-    downscaler/exclude: "true"
+  # annotations:
+  #   downscaler/exclude: "true"
 spec:
   replicas: 1
   selector:
