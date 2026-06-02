@@ -1,5 +1,8 @@
 "use strict";
 
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, "..", ".env"), quiet: true });
+
 const url = process.env.REDIS_URL || "redis://localhost:6379";
 
 module.exports = {
