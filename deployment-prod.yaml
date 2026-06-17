@@ -18,8 +18,8 @@ spec:
         app: ks-contract-tool-backend-prod
     spec:
       hostname: ks-contract-tool-backend-prod
-      nodeSelector:
-        noderole: ks-nonprod-node-x 
+      #nodeSelector:
+        #noderole: ks-nonprod-node-x 
       containers:
         - name: ks-contract-tool-backend-prod
           image: 025066284787.dkr.ecr.ap-south-1.amazonaws.com/ks-contract-tool-backend-dev:<VERSION>
